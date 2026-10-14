@@ -6,6 +6,78 @@
     <title>Sistema de Gestão de Condomínios</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+    function switchTab(tabId) {
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.sidebar-menu li').forEach(el => el.classList.remove('active'));
+        
+        document.getElementById(tabId).classList.add('active');
+        event.currentTarget.classList.add('active');
+
+        if(tabId === 'apartamentos') {
+            listarApartamentos();
+        }
+    }
+
+    function listarApartamentos() {
+        const tabela = document.querySelector('#apartamentos');
+        
+        tabela.innerHTML = `
+            <div class="section-header">
+                <h2>Gerenciamento de Apartamentos</h2>
+                <button class="btn-primary" onclick="cadastrarAptoTeste()"><i class="fa-solid fa-plus"></i> Add Apto Teste</button>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Número</th>
+                            <th>Bloco</th>
+                        </tr>
+                    </thead>
+                    <tbody id="lista-aptos">
+                        <tr><td colspan="3">Carregando dados do banco...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        `;
+
+        fetch('http://localhost:3000/apartamentos')
+            .then(function(resposta) { return resposta.json(); })
+            .then(function(dadosBanco) {
+                const tbody = document.getElementById('lista-aptos');
+                tbody.innerHTML = ''; 
+
+                dadosBanco.forEach(function(apto) {
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>${apto.id}</td>
+                            <td>${apto.numero}</td>
+                            <td>${apto.bloco}</td>
+                        </tr>
+                    `;
+                });
+            })
+            .catch(function(erro) {
+                console.log("Erro ao buscar no servidor", erro);
+            });
+    }
+
+    function cadastrarAptoTeste() {
+        const dados = { numero: "101", bloco: "A" };
+
+        fetch('http://localhost:3000/apartamentos', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(dados)
+        })
+        .then(function() {
+            alert("Apartamento 101 Bloco A inserido no banco!");
+            listarApartamentos();
+        });
+    }
+</script>
 </head>
 <body>
 
